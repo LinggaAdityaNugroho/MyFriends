@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MyFriends</string>
+    <string name="new_friend">New Friend</string>
+    <string name="view_all">View All</string>
+    <string name="name">Name</string>
+    <string name="scholl">Scholl</string>
+    <string name="github">Github</string>
+    <string name="type_something">Type something...</string>
+    <string name="school">School</string>
+</resources>
