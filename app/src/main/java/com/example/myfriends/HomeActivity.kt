@@ -96,4 +96,36 @@ class HomeActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_toolbar_home, menu)
+        val search = menu?.findItem(R.id.icSearch)
+        val searchView = search?.actionView as? SearchView
+
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
+            android.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null) {
+                    searchDatabase(newText)
+                }
+                return true
+            }
+
+            private fun searchDatabase(query: String) {
+                val searchQuery = "%$query%"
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    val getData = database.friendDao().getsearchDatabase(searchQuery)
+                    withContext(Dispatchers.Main) {
+                        friendAdapter.setData(getData)
+                    }
+                }
+            }
+        })
+        return true
+    }
 }

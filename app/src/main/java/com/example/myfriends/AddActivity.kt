@@ -1,5 +1,6 @@
 package com.example.myfriends
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
@@ -12,6 +13,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -105,12 +107,21 @@ class AddActivity : AppCompatActivity() {
     }
 
     private fun saveFriend() {
+        //progress dialog
         imgAddPhoto.setOnClickListener {
-            if (checkPermissionGallery()) {
-                openGallery()
-            } else {
-                requestPermissionGallery()
-            }
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage("Harus menggunaan foto di bawah 5mb")
+            builder.setPositiveButton("Ya", { dialogInterface: DialogInterface, i: Int ->
+                if (checkPermissionGallery()) {
+                    openGallery()
+                } else {
+                    requestPermissionGallery()
+                }
+            })
+            builder.setNegativeButton("Batal", { dialogInterface: DialogInterface, i: Int ->
+                finish()
+            })
+            builder.show()
         }
 
         btnSaveAdd.setOnClickListener {
