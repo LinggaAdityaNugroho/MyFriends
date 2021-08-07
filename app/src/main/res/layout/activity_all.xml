@@ -10,8 +10,7 @@
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="All your friend"
-        app:menu="@menu/menu_toolbar_home"/>
+        app:title="All your friend" />
 
    <LinearLayout
        android:layout_width="match_parent"

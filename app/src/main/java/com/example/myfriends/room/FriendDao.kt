@@ -18,6 +18,6 @@ interface FriendDao {
     suspend fun getFriend(): List<FriendModel>
 
     @Query("SELECT * FROM friendmodel WHERE name LIKE :searchQuery OR school LIKE :searchQuery OR github LIKE :searchQuery OR github LIKE :searchQuery")
-    fun searchDatabase(searchQuery: String): List<FriendModel>
+    fun getsearchDatabase(searchQuery: String): List<FriendModel>
 
 }

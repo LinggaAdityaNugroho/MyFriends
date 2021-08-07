@@ -10,12 +10,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myfriends.adapter.FriendAdapterViewAll
 import com.example.myfriends.databinding.ActivityAllBinding
 import com.example.myfriends.room.FriendDatabase
+import kotlinx.android.synthetic.main.activity_all.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class AllActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+class AllActivity : AppCompatActivity() {
 
     private val database by lazy { FriendDatabase(this) }
     lateinit var friendAdapterViewAll: FriendAdapterViewAll
@@ -29,6 +30,34 @@ class AllActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         setContentView(binding.root)
 
         setupRecyclerView()
+        setupButton()
+    }
+
+    private fun setupButton() {
+        edSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
+            android.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null) {
+                    searchDatabase(newText)
+                }
+                return true
+            }
+
+            private fun searchDatabase(query: String) {
+                val searchQuery = "%$query%"
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    val getData = database.friendDao().getsearchDatabase(searchQuery)
+                    withContext(Dispatchers.Main) {
+                        friendAdapterViewAll.setData(getData)
+                    }
+                }
+            }
+        })
     }
 
     private fun setupRecyclerView() {
@@ -51,44 +80,6 @@ class AllActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             Log.d("AddActivity", "dataFriendResponse: $getDataFriend")
             withContext(Dispatchers.Main) {
                 friendAdapterViewAll.setData(getDataFriend)
-            }
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_toolbar_home, menu)
-
-        val sear = menu?.findItem(R.id.icSearch)
-        val seachV  = sear?.actionView as? SearchView
-        seachV?.isSubmitButtonEnabled = true
-        seachV?.setOnQueryTextListener(this)
-
-        val search = menu?.findItem(R.id.edSearch)
-        val searchView = search?.actionView as? SearchView
-        searchView?.isSubmitButtonEnabled = true
-        searchView?.setOnQueryTextListener(this)
-
-        return true
-    }
-
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        return true
-    }
-
-    override fun onQueryTextChange(newText: String?): Boolean {
-        if (newText != null) {
-            searchDatabase(newText)
-        }
-        return true
-    }
-
-    private fun searchDatabase(query: String) {
-        val searchQuery = "%$query%"
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val getData = database.friendDao().searchDatabase(searchQuery)
-            withContext(Dispatchers.Main) {
-                friendAdapterViewAll.setData(getData)
             }
         }
     }

@@ -9,7 +9,9 @@ import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myfriends.databinding.ActivityHomeBinding
 import com.example.myfriends.room.FriendDatabase
+import kotlinx.android.synthetic.main.activity_all.*
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.activity_home.edSearch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +20,7 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.startActivity
 
 
-class HomeActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+class HomeActivity : AppCompatActivity() {
 
     private val database by lazy { FriendDatabase(this) }
     lateinit var friendAdapter: FriendAdapter
@@ -38,6 +40,31 @@ class HomeActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     }
 
     private fun setupButton() {
+        edSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
+            android.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null) {
+                    searchDatabase(newText)
+                }
+                return true
+            }
+
+            private fun searchDatabase(query: String) {
+                val searchQuery = "%$query%"
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    val getData = database.friendDao().getsearchDatabase(searchQuery)
+                    withContext(Dispatchers.Main) {
+                        friendAdapter.setData(getData)
+                    }
+                }
+            }
+        })
+
         flAdd.setOnClickListener {
             val moveAdd = Intent(this, AddActivity::class.java)
             startActivity(moveAdd)
@@ -68,39 +95,5 @@ class HomeActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                 friendAdapter.setData(getDataFriend)
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_toolbar_home, menu)
-
-        val search = menu!!.findItem(R.id.icSearch)
-        val searchView = search?.actionView as? SearchView
-        searchView?.isSubmitButtonEnabled = true
-        searchView?.setOnQueryTextListener(this)
-
-        return true
-
-    }
-
-    override fun onQueryTextChange(newText: String?): Boolean {
-        if (newText != null) {
-            searchDatabase(newText)
-        }
-        return true
-    }
-
-    private fun searchDatabase(newText: String) {
-        val searchQuery = "%$newText%"
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val getData = database.friendDao().searchDatabase(searchQuery)
-            withContext(Dispatchers.Main) {
-                friendAdapter.setData(getData)
-            }
-        }
-    }
-
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        return true
     }
 }
